@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor } from '@phosphor-icons/react'
+import { Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor, Link } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { SYSTEM_PROMPT_CONTENT, TOOLS_CONTENT } from './prompts-content'
 
@@ -302,10 +302,19 @@ function App() {
     return (
       <Tag 
         id={id}
-        className={`${sizeClass} font-bold mb-4 scroll-mt-20 cursor-pointer hover:text-primary transition-colors`}
-        onClick={() => navigateToSection(activeSection, id)}
+        className={`${sizeClass} font-bold mb-4 scroll-mt-20 group flex items-center gap-2`}
       >
-        {children}
+        <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, id)}>
+          {children}
+        </span>
+        <button
+          onClick={() => navigateToSection(activeSection, id)}
+          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+          aria-label={`Link to ${children}`}
+          title="Copy link to this section"
+        >
+          <Link size={level === 2 ? 20 : level === 3 ? 18 : 16} className="text-muted-foreground hover:text-primary" />
+        </button>
       </Tag>
     )
   }
@@ -966,7 +975,17 @@ return (
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 id="element-ids" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'element-ids')}>Element IDs</h4>
+                  <h4 id="element-ids" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'element-ids')}>Element IDs</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'element-ids')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Element IDs"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Use descriptive kebab-case IDs for state persistence</p>
                   <CodeBlock
                     id="element-ids-code"
@@ -977,7 +996,17 @@ return (
                 </div>
 
                 <div>
-                  <h4 id="imports" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'imports')}>Imports</h4>
+                  <h4 id="imports" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'imports')}>Imports</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'imports')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Imports"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Import by package name only, no versions or CDN URLs</p>
                   <CodeBlock
                     id="imports-code"
@@ -993,7 +1022,17 @@ import { Button } from "https://cdn.jsdelivr.net/..."`}
                 </div>
 
                 <div>
-                  <h4 id="data-persistence-rules" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'data-persistence-rules')}>Data Persistence Rules</h4>
+                  <h4 id="data-persistence-rules" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'data-persistence-rules')}>Data Persistence Rules</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'data-persistence-rules')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Data Persistence Rules"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
                     <p className="text-sm font-medium text-yellow-800">Simple Rule: "Should this survive a page refresh?"</p>
                     <ul className="text-sm text-yellow-700 mt-2 space-y-1">
@@ -1015,7 +1054,17 @@ const [selectedTab, setSelectedTab] = useState("overview")`}
                 </div>
 
                 <div>
-                  <h4 id="asset-management" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'asset-management')}>Asset Management</h4>
+                  <h4 id="asset-management" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'asset-management')}>Asset Management</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'asset-management')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Asset Management"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Always import assets explicitly, never use string paths</p>
                   <CodeBlock
                     id="asset-imports-code"
@@ -1043,7 +1092,17 @@ import myAudio from '@/assets/audio/click.mp3'
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 id="component-library" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'component-library')}>Component Library</h4>
+                  <h4 id="component-library" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'component-library')}>Component Library</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'component-library')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Component Library"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Strongly prefer shadcn components over plain HTML</p>
                   <CodeBlock
                     id="shadcn-components-code"
@@ -1065,7 +1124,17 @@ import { Input } from "@/components/ui/input"
                 </div>
 
                 <div>
-                  <h4 id="styling-with-tailwind" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'styling-with-tailwind')}>Styling with Tailwind</h4>
+                  <h4 id="styling-with-tailwind" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'styling-with-tailwind')}>Styling with Tailwind</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'styling-with-tailwind')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Styling with Tailwind"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Use utility classes and theme variables</p>
                   <CodeBlock
                     id="tailwind-styling-code"
@@ -1084,7 +1153,17 @@ import { Input } from "@/components/ui/input"
                 </div>
 
                 <div>
-                  <h4 id="icons" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'icons')}>Icons</h4>
+                  <h4 id="icons" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'icons')}>Icons</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'icons')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Icons"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Use Phosphor Icons with default size and weight</p>
                   <CodeBlock
                     id="icons-code"
@@ -1172,7 +1251,17 @@ import { Input } from "@/components/ui/input"
               
               <div className="space-y-4">
                 <div>
-                  <h4 id="system-prompt-content" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-prompt-content')}>System Prompt Content</h4>
+                  <h4 id="system-prompt-content" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-prompt-content')}>System Prompt Content</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'system-prompt-content')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to System Prompt Content"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {systemPromptLoading ? 'Loading...' : systemPromptText}
@@ -1181,7 +1270,17 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 id="available-tools" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'available-tools')}>Available Tools</h4>
+                  <h4 id="available-tools" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'available-tools')}>Available Tools</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'available-tools')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Available Tools"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {toolsLoading ? 'Loading...' : toolsText}
@@ -1378,7 +1477,17 @@ import { Input } from "@/components/ui/input"
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 id="supported-features" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'supported-features')}>✅ Supported Features</h4>
+                  <h4 id="supported-features" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'supported-features')}>✅ Supported Features</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'supported-features')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Supported Features"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <ul className="space-y-1 text-sm">
                     <li>• React applications with TypeScript</li>
                     <li>• Client-side state management with persistence</li>
@@ -1392,7 +1501,17 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 id="platform-limitations" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'platform-limitations')}>❌ Platform Limitations</h4>
+                  <h4 id="platform-limitations" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'platform-limitations')}>❌ Platform Limitations</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'platform-limitations')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Platform Limitations"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <ul className="space-y-1 text-sm">
                     <li>• No server-side execution (Node.js APIs)</li>
                     <li>• No database connections</li>
@@ -1405,7 +1524,17 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 id="optimization-focus" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimization-focus')}>🎯 Optimization Focus</h4>
+                  <h4 id="optimization-focus" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimization-focus')}>🎯 Optimization Focus</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'optimization-focus')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Optimization Focus"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <ul className="space-y-1 text-sm">
                     <li>• Fast hot module replacement (HMR)</li>
                     <li>• Minimal bundle sizes</li>
@@ -1473,7 +1602,17 @@ import { Input } from "@/components/ui/input"
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 id="key-development-tools" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'key-development-tools')}>Key Development Tools</h4>
+                  <h4 id="key-development-tools" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'key-development-tools')}>Key Development Tools</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'key-development-tools')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Key Development Tools"
+                      title="Copy link to this section"
+                    >
+                      <Link size={14} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <ul className="text-sm space-y-1">
                     <li>• <code>node</code> - Node.js runtime</li>
                     <li>• <code>git</code> - Version control</li>
@@ -1485,7 +1624,17 @@ import { Input } from "@/components/ui/input"
                   </ul>
                 </div>
                 <div>
-                  <h4 id="system-utilities" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-utilities')}>System Utilities</h4>
+                  <h4 id="system-utilities" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-utilities')}>System Utilities</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'system-utilities')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to System Utilities"
+                      title="Copy link to this section"
+                    >
+                      <Link size={14} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <ul className="text-sm space-y-1">
                     <li>• <code>bash</code>, <code>zsh</code> - Shell environments</li>
                     <li>• <code>grep</code>, <code>sed</code>, <code>awk</code> - Text processing</li>
@@ -1521,7 +1670,17 @@ import { Input } from "@/components/ui/input"
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 id="functional-updates-usekv" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'functional-updates-usekv')}>Functional Updates with useKV</h4>
+                  <h4 id="functional-updates-usekv" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'functional-updates-usekv')}>Functional Updates with useKV</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'functional-updates-usekv')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Functional Updates with useKV"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <p className="text-sm text-muted-foreground mb-2">Always use functional updates to avoid stale closure issues</p>
                   <CodeBlock
                     id="functional-updates-code"
@@ -1548,7 +1707,17 @@ const toggleTodo = (id) => {
                 </div>
 
                 <div>
-                  <h4 id="choosing-usestate-usekv" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}>Choosing Between useState and useKV</h4>
+                  <h4 id="choosing-usestate-usekv" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}>Choosing Between useState and useKV</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Choosing Between useState and useKV"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <CodeBlock
                     id="state-choice-code"
                     code={`// Persistent data - use useKV
@@ -1614,7 +1783,17 @@ const [isLoading, setIsLoading] = useState(false)`}
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 id="efficient-re-renders" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'efficient-re-renders')}>Efficient Re-renders</h4>
+                  <h4 id="efficient-re-renders" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'efficient-re-renders')}>Efficient Re-renders</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'efficient-re-renders')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Efficient Re-renders"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <CodeBlock
                     id="performance-tips-code"
                     code={`// Use useMemo for expensive calculations
@@ -1635,7 +1814,17 @@ const MemoizedComponent = memo(({ data }: { data: ComplexObject }) => {
                 </div>
 
                 <div>
-                  <h4 id="optimizing-kv-operations" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimizing-kv-operations')}>Optimizing KV Operations</h4>
+                  <h4 id="optimizing-kv-operations" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
+                    <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimizing-kv-operations')}>Optimizing KV Operations</span>
+                    <button
+                      onClick={() => navigateToSection(activeSection, 'optimizing-kv-operations')}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+                      aria-label="Link to Optimizing KV Operations"
+                      title="Copy link to this section"
+                    >
+                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                    </button>
+                  </h4>
                   <CodeBlock
                     id="kv-optimization-code"
                     code={`// Batch related operations
