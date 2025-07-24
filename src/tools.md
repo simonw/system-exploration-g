@@ -15,10 +15,93 @@ You can invoke functions by writing a "<antml:function_calls>" block like the fo
 
 String and scalar parameters should be specified as is, while lists and objects should use JSON format.
 
-Here are the functions available in JSONSchema format:
-<functions>
-<function>{"description": "File editing tool with persistent state across calls. Use for viewing, creating, and editing files in the user's project. Always use absolute file paths.\n\nCOMMANDS:\n• view: Display file contents (with line numbers), list directory contents (up to 2 levels deep), or view image files\n• create: Create new file or completely overwrite existing file with provided content\n• str_replace: Replace specific text segments in existing files\n• insert: Insert new content after a specified line number\n• undo_edit: Revert the most recent edit to a file\n\nWORKFLOW GUIDELINES:\n1. ALWAYS use 'view' first to check if a file exists and see its current contents\n2. For new files: use 'create'\n3. For major rewrites (>50% of file content): use 'create' (faster than multiple str_replace calls)\n4. For targeted edits: use 'str_replace'\n5. For adding content at specific locations: use 'insert'\n\nSTR_REPLACE CRITICAL RULES:\n• old_str must match EXACTLY (including all whitespace, indentation, and line breaks)\n• old_str must be UNIQUE in the file - if multiple matches exist, operation fails\n• Include sufficient surrounding context to ensure uniqueness\n• new_str replaces old_str completely (can be empty string for deletion)\n• Preserve original file's whitespace patterns and indentation\n\nIMPORTANT NOTES:\n• This tool may ONLY be used on files and directories within the user's project directory\n• ALWAYS use absolute file paths prefixed with the user's current project directory\n• Long outputs are truncated with '<file too long...' marker\n• State persists across all command calls within the session\n• 'create' will overwrite without warning - always check with 'view' first\n• For uncertainty between 'create' vs 'str_replace', use 'view' to determine file size and change scope", "name": "str_replace_editor", "parameters": {"properties": {"command": {"description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.", "enum": ["view", "create", "str_replace", "insert", "undo_edit"], "type": "string"}, "file_text": {"description": "Required parameter of `create` command, with the content of the file to be created.", "type": "string"}, "insert_line": {"description": "Required parameter of `insert` command. The `new_str` will be inserted AFTER the line `insert_line` of `path`.", "type": "integer"}, "new_str": {"description": "Required parameter of `str_replace` command containing the new string. Required parameter of `insert` command containing the string to insert.", "type": "string"}, "old_str": {"description": "Required parameter of `str_replace` command containing the string in `path` to replace. Leading and ending whitespaces from file content should be preserved!", "type": "string"}, "path": {"description": "Absolute path to the file or directory. MUST be the absolute file path.", "type": "string"}, "view_range": {"description": "Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.", "items": {"type": "integer"}, "type": "array"}}, "required": ["command", "path"], "type": "object"}</function>
-<function>{"description": "Executes the `npm` CLI tool in the project's root directory (`/workspaces/spark-template`) with the specified command and any additional arguments provided.\n\n- The npm command must be one of the allowed commands: install, uninstall, update, list, view, search.\n- The force flags (`-f` or `--force`) and global flags (`-g` or `--global`) are not allowed.\n- The tool returns the output of the command and the exit code. Long outputs are tail-truncated (only the last portion is shown).\n- Use of commands or flags that are not allowed will be rejected.\n- Use this tool only for package management operations in the current project root directory. Do not use for global npm operations.\n- Important: Only install packages that are isomorphic or browser-compatible. Node-only packages are not supported and will break the user's application.\n- Always use the `list` command to check installed packages before running install or other commands. This helps prevent incompatible installs and ensures the application remains functional.", "name": "npm", "parameters": {"properties": {"args": {"description": "A single string of additional arguments to pass to the npm command. Separate each argument with a space, just as you would on the command line (e.g., \"list --depth=0\"). Do not include disallowed flags such as \"-g\", \"--global\", \"-f\", or \"--force\".", "type": "string"}, "command": {"description": "The single npm command to execute (e.g., \"list\"). Allowed commands: install, uninstall, update, list, view, search", "enum": ["install", "uninstall", "update", "list", "view", "search"], "type": "string"}}, "required": ["command"], "type": "object"}</function>
-<function>{"description": "Run commands in a bash shell at the project root directory (/workspaces/spark-template).\n\n      * When invoking this tool, the contents of the \"command\" parameter does NOT need to be XML-escaped.\n      * Only run commands on files and directories within the project root directory (/workspaces/spark-template).\n      * Always use absolute paths when passing files or directories to commands.\n      * Only run non-interactive commands that do not require user input, as this tool does not support interactive prompts.\n      * Only run short-lived commands that complete within ~1 minute. After 1 minute the command will be killed and the session reset.\n      * You do not have access to the internet via this tool.\n      * You cannot run privileged commands that require 'sudo' or 'su'.\n      * You cannot run arbitrary code using 'node' or other interpreters.\n      * You cannot run npm commands with the bash tool. Use the npm tool instead.\n      * This is a persistant bash session. State is saved across command calls and discussions with the user.\n      * To inspect a particular line range of a file, e.g. lines 10-25, try 'sed -n 10,25p /path/to/the/file'.\n      * To get a better idea of the project structure, try 'tree ./src'\n      * Avoid commands that may produce a very large amount of output as it will be truncated.\n      * If a command times out, the session is reset and you'll need to reinitialize any environment state.", "name": "bash", "parameters": {"properties": {"command": {"description": "The bash command to run.", "type": "string"}}, "required": ["command"], "type": "object"}</function>
-<function>{"description": "Tool for generating suggestions for a spark when all files are created. This is used to give the user helpful next steps for things they could do with their Spark.", "name": "create_suggestions", "parameters": {"properties": {"suggestions": {"description": "3 concise phrases describing the change for non-technical users omitting implementation details", "items": {"type": "string"}, "type": "array"}}, "required": ["suggestions"], "type": "object"}</function>
-</functions>
+Here are the available tools and their capabilities:
+
+### str_replace_editor
+**File editing tool with persistent state across calls**
+
+A powerful file manipulation tool for viewing, creating, and editing files in your project. Always use absolute file paths.
+
+**Available Commands:**
+- `view` - Display file contents (with line numbers), list directory contents (up to 2 levels deep), or view image files
+- `create` - Create new file or completely overwrite existing file with provided content
+- `str_replace` - Replace specific text segments in existing files
+- `insert` - Insert new content after a specified line number
+- `undo_edit` - Revert the most recent edit to a file
+
+**Workflow Guidelines:**
+1. ALWAYS use 'view' first to check if a file exists and see its current contents
+2. For new files: use 'create'
+3. For major rewrites (>50% of file content): use 'create' (faster than multiple str_replace calls)
+4. For targeted edits: use 'str_replace'
+5. For adding content at specific locations: use 'insert'
+
+**Critical Rules for str_replace:**
+- old_str must match EXACTLY (including all whitespace, indentation, and line breaks)
+- old_str must be UNIQUE in the file - if multiple matches exist, operation fails
+- Include sufficient surrounding context to ensure uniqueness
+- new_str replaces old_str completely (can be empty string for deletion)
+- Preserve original file's whitespace patterns and indentation
+
+**Parameters:**
+- `command` (required) - The command to run: view, create, str_replace, insert, or undo_edit
+- `path` (required) - Absolute path to the file or directory
+- `file_text` - Required for 'create' command, with the content of the file to be created
+- `old_str` - Required for 'str_replace' command containing the string to replace
+- `new_str` - Required for 'str_replace' and 'insert' commands containing the new/inserted string
+- `insert_line` - Required for 'insert' command, specifying the line number after which to insert
+- `view_range` - Optional for 'view' command, specifies line range like [11, 12] or [start, -1] for end
+
+### npm
+**Package manager tool for the project**
+
+Executes npm commands in the project's root directory with safety restrictions.
+
+**Allowed Commands:** install, uninstall, update, list, view, search
+
+**Important Restrictions:**
+- No force flags (`-f` or `--force`) allowed
+- No global flags (`-g` or `--global`) allowed
+- Only install isomorphic or browser-compatible packages
+- Node-only packages are not supported and will break the application
+- Always use `list` command to check installed packages before making changes
+
+**Parameters:**
+- `command` (required) - The npm command to execute (install, uninstall, update, list, view, search)
+- `args` - Additional arguments to pass to the npm command (space-separated string)
+
+### bash
+**Shell command execution tool**
+
+Run bash commands in the project root directory with safety constraints.
+
+**Key Features:**
+- Persistent bash session - state is saved across command calls
+- Only runs commands within the project root directory
+- Commands must complete within ~1 minute
+- No interactive commands supported
+- No privileged commands (sudo/su)
+- Cannot run arbitrary code interpreters (node, python, etc.)
+- Cannot run npm commands (use npm tool instead)
+
+**Useful Commands:**
+- `sed -n 10,25p /path/to/file` - Inspect specific line ranges
+- `tree ./src` - View project structure
+- `find` commands for locating files
+- File manipulation with standard Unix tools
+
+**Parameters:**
+- `command` (required) - The bash command to run
+
+### create_suggestions
+**Spark improvement suggestion generator**
+
+Generates helpful next steps for users after creating or modifying a Spark application.
+
+**Purpose:**
+- Provides 3 concise, non-technical suggestions
+- Helps users understand what they could do next with their Spark
+- Focuses on user-facing improvements rather than implementation details
+
+**Parameters:**
+- `suggestions` (required) - Array of 3 concise phrase strings describing potential improvements
