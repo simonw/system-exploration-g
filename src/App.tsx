@@ -1709,15 +1709,15 @@ const toggleTodo = (id) => {
                 <div>
                   <h4 id="choosing-usestate-usekv" className="font-semibold mb-2 scroll-mt-20 group flex items-center gap-2">
                     <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}>Choosing Between useState and useKV</span>
-                    <button
-                      onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
                       aria-label="Link to Choosing Between useState and useKV"
-                      title="Copy link to this section"
+                      onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}
                     >
-                      <Link size={16} className="text-muted-foreground hover:text-primary" />
+                      aria-label="Link to Choosing Between useState and useKV"
                     </button>
                   </h4>
+                  <CodeBlock
+                    id="state-choice-code"
+                    code={`// Persistent data - use useKV
                   <CodeBlock
                     id="state-choice-code"
                     code={`// Persistent data - use useKV
@@ -1731,9 +1731,6 @@ const [searchQuery, setSearchQuery] = useState("")
 const [currentPage, setCurrentPage] = useState(1)
 const [isLoading, setIsLoading] = useState(false)`}
                   />
-                </div>
-              </div>
-            </CardContent>
           </Card>
 
           <Card>
@@ -1760,6 +1757,9 @@ const [isLoading, setIsLoading] = useState(false)`}
 }`}
               />
 
+}`}
+              />
+torage Error Handling"
               <CodeBlock
                 id="kv-error-handling-code"
                 title="KV Storage Error Handling"
@@ -1768,9 +1768,6 @@ const [isLoading, setIsLoading] = useState(false)`}
     await spark.kv.set("user-data", userData)
     toast.success("Data saved successfully!")
   } catch (error) {
-    console.error("Failed to save data:", error)
-    toast.error("Failed to save data")
-  }
 }`}
               />
             </CardContent>
