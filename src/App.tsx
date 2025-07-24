@@ -978,7 +978,7 @@ const [isLoading, setIsLoading] = useState(false)`}
               <CodeBlock
                 id="error-handling"
                 title="LLM API Error Handling"
-                code={`const generateContent = async () => {
+                code={`const generateContent = async (topic: string) => {
   try {
     setIsLoading(true)
     const prompt = spark.llmPrompt\`Generate content about \${topic}\`
