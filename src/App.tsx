@@ -427,7 +427,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
               
               <p className="text-sm text-muted-foreground">
                 Try the interactive playground above to see live user data, or use the examples below in your own code.
-              />
+              </p>
             </CardContent>
           </Card>
         </div>
