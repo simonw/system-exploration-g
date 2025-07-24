@@ -5,6 +5,16 @@
   * {
     @apply border-border;
   }
+  
+  /* Smooth scrolling for all elements */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Better scroll margins for headings and sections */
+  h1, h2, h3, h4, h5, h6 {
+    scroll-margin-top: 2rem;
+  }
 }
 
 :root {

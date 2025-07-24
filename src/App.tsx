@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKV } from '@github/spark/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,6 +28,75 @@ function App() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isMobile = useIsMobile()
+
+  // Navigation with URL fragments
+  const navigateToSection = useCallback((sectionId: string, fragmentId?: string) => {
+    setActiveSection(sectionId)
+    const url = fragmentId ? `#${sectionId}--${fragmentId}` : `#${sectionId}`
+    window.history.pushState({ sectionId, fragmentId }, '', url)
+    
+    // Scroll to fragment if specified
+    if (fragmentId) {
+      setTimeout(() => {
+        const element = document.getElementById(fragmentId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    } else {
+      // Scroll to top of section
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 100)
+    }
+    
+    if (isMobile) setSidebarOpen(false)
+  }, [isMobile])
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const hash = window.location.hash.slice(1) // Remove #
+      if (hash) {
+        const [sectionId, fragmentId] = hash.split('--')
+        if (sectionId) {
+          setActiveSection(sectionId)
+          if (fragmentId) {
+            setTimeout(() => {
+              const element = document.getElementById(fragmentId)
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+            }, 100)
+          }
+        }
+      } else {
+        setActiveSection('overview')
+      }
+    }
+
+    // Initialize from URL on page load
+    const hash = window.location.hash.slice(1)
+    if (hash) {
+      const [sectionId, fragmentId] = hash.split('--')
+      // List of valid section IDs
+      const validSections = ['overview', 'persistence', 'llm', 'user', 'playground', 'system-prompt', 'platform', 'best-practices']
+      if (sectionId && validSections.includes(sectionId)) {
+        setActiveSection(sectionId)
+        if (fragmentId) {
+          setTimeout(() => {
+            const element = document.getElementById(fragmentId)
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          }, 500) // Longer delay for initial load
+        }
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   // Playground state
   const [kvKey, setKvKey] = useState('test-key')
@@ -228,6 +297,21 @@ function App() {
     </div>
   )
 
+  const SectionHeader = ({ id, children, level = 2 }: { id: string; children: React.ReactNode; level?: 2 | 3 | 4 }) => {
+    const Tag = `h${level}` as keyof JSX.IntrinsicElements
+    const sizeClass = level === 2 ? 'text-2xl' : level === 3 ? 'text-xl' : 'text-lg'
+    
+    return (
+      <Tag 
+        id={id}
+        className={`${sizeClass} font-bold mb-4 scroll-mt-20 cursor-pointer hover:text-primary transition-colors`}
+        onClick={() => navigateToSection(activeSection, id)}
+      >
+        {children}
+      </Tag>
+    )
+  }
+
   const sections: Section[] = [
     {
       id: 'overview',
@@ -281,7 +365,7 @@ function App() {
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Persistence API</h2>
+            <SectionHeader id="persistence-api">Persistence API</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Store and retrieve data that persists between sessions using the useKV hook or direct API.
             </p>
@@ -296,7 +380,7 @@ function App() {
             <TabsContent value="useKV" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2" id="usekv-hook">
                     useKV Hook <Badge variant="secondary">Recommended</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -345,13 +429,13 @@ setTodos((currentTodos) =>
             <TabsContent value="direct" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Direct API</CardTitle>
+                  <CardTitle id="direct-api">Direct API</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>Direct access to the key-value store for non-React contexts.</p>
                   
                   <CodeBlock
-                    id="direct-api"
+                    id="direct-api-methods"
                     title="Direct API Methods"
                     code={`// Set a value
 await spark.kv.set("user-preference", { theme: "dark" })
@@ -379,7 +463,7 @@ await spark.kv.delete("user-preference")`}
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">LLM API</h2>
+            <SectionHeader id="llm-api">LLM API</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Direct access to language models for AI-powered features in your applications.
             </p>
@@ -387,13 +471,13 @@ await spark.kv.delete("user-preference")`}
 
           <Card>
             <CardHeader>
-              <CardTitle>Creating Prompts</CardTitle>
+              <CardTitle id="creating-prompts">Creating Prompts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-red-600 font-medium">⚠️ ALL prompts MUST be created using spark.llmPrompt!</p>
               
               <CodeBlock
-                id="llm-prompt"
+                id="llm-prompt-creation"
                 title="Prompt Creation"
                 code={`const prompt = spark.llmPrompt\`Generate a summary of: \${content}\`
 
@@ -407,7 +491,7 @@ const prompt = spark.llmPrompt\`Write a \${audience}-friendly explanation of \${
 
           <Card>
             <CardHeader>
-              <CardTitle>Executing LLM Calls</CardTitle>
+              <CardTitle id="executing-llm-calls">Executing LLM Calls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -427,14 +511,14 @@ const prompt = spark.llmPrompt\`Write a \${audience}-friendly explanation of \${
               </div>
               
               <CodeBlock
-                id="llm-execution"
+                id="llm-execution-basic"
                 title="Basic Execution"
                 code={`const result = await spark.llm(prompt)
 const jsonResult = await spark.llm(prompt, "gpt-4o-mini", true)`}
               />
               
               <CodeBlock
-                id="llm-complete"
+                id="llm-complete-example"
                 title="Complete Example"
                 code={`const topic = "machine learning"
 const prompt = spark.llmPrompt\`Write a brief explanation of \${topic}\`
@@ -456,7 +540,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">User API</h2>
+            <SectionHeader id="user-api">User API</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Access current user information and implement owner-only features.
             </p>
@@ -464,7 +548,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
 
           <Card>
             <CardHeader>
-              <CardTitle>User Information</CardTitle>
+              <CardTitle id="user-information">User Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
@@ -489,7 +573,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Interactive Playground</h2>
+            <SectionHeader id="interactive-playground">Interactive Playground</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Experiment with the Spark APIs directly in your browser. Test KV storage operations and LLM prompting.
             </p>
@@ -505,7 +589,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="kv" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2" id="kv-store-playground">
                     <Database size={20} />
                     Key-Value Store Playground
                   </CardTitle>
@@ -584,7 +668,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="llm" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2" id="llm-api-playground">
                     <Code size={20} />
                     LLM API Playground
                   </CardTitle>
@@ -640,7 +724,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
                       
                       <div className="text-xs text-muted-foreground space-y-1">
                         <p><strong>Tip:</strong> Use variables in your prompt for dynamic content</p>
-                        <p><strong>Example:</strong> "Explain $&#123;topic&#125; in simple terms"</p>
+                        <p><strong>Example:</strong> "Explain ${'{topic}'} in simple terms"</p>
                       </div>
                     </div>
                     
@@ -668,7 +752,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Example Prompts</CardTitle>
+                  <CardTitle id="example-prompts">Example Prompts</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -729,7 +813,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="user" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2" id="user-api-playground">
                     <User size={20} />
                     User API Playground
                   </CardTitle>
@@ -787,7 +871,7 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Example Use Cases</CardTitle>
+                  <CardTitle id="user-example-use-cases">Example Use Cases</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -840,7 +924,7 @@ return (
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Complete System Prompt</h2>
+            <SectionHeader id="system-prompt">Complete System Prompt</SectionHeader>
             <p className="text-muted-foreground mb-6">
               The full system prompt that defines how Spark agents work and what capabilities they have.
             </p>
@@ -848,13 +932,13 @@ return (
 
           <Card>
             <CardHeader>
-              <CardTitle>Template Structure</CardTitle>
+              <CardTitle id="template-structure">Template Structure</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p>Every Spark app starts with this optimized template structure:</p>
               
               <CodeBlock
-                id="template-structure"
+                id="template-structure-code"
                 title="Project Structure"
                 code={`├── index.html          // Entry point with required imports
 ├── package.json        // Managed via npm tool only
@@ -879,15 +963,15 @@ return (
 
           <Card>
             <CardHeader>
-              <CardTitle>Coding Standards</CardTitle>
+              <CardTitle id="coding-standards">Coding Standards</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Element IDs</h4>
+                  <h4 id="element-ids" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'element-ids')}>Element IDs</h4>
                   <p className="text-sm text-muted-foreground mb-2">Use descriptive kebab-case IDs for state persistence</p>
                   <CodeBlock
-                    id="element-ids"
+                    id="element-ids-code"
                     code={`<input id="first-name" />
 <input id="email-address" />
 <textarea id="message-content" />`}
@@ -895,10 +979,10 @@ return (
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Imports</h4>
+                  <h4 id="imports" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'imports')}>Imports</h4>
                   <p className="text-sm text-muted-foreground mb-2">Import by package name only, no versions or CDN URLs</p>
                   <CodeBlock
-                    id="imports"
+                    id="imports-code"
                     code={`// ✅ Correct
 import React from "react"
 import { Button } from "@/components/ui/button"
@@ -911,7 +995,7 @@ import { Button } from "https://cdn.jsdelivr.net/..."`}
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Data Persistence Rules</h4>
+                  <h4 id="data-persistence-rules" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'data-persistence-rules')}>Data Persistence Rules</h4>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
                     <p className="text-sm font-medium text-yellow-800">Simple Rule: "Should this survive a page refresh?"</p>
                     <ul className="text-sm text-yellow-700 mt-2 space-y-1">
@@ -920,7 +1004,7 @@ import { Button } from "https://cdn.jsdelivr.net/..."`}
                     </ul>
                   </div>
                   <CodeBlock
-                    id="persistence-rules"
+                    id="persistence-rules-code"
                     code={`// Persistent data (survives refresh)
 const [todos, setTodos] = useKV("user-todos", [])
 const [preferences, setPreferences] = useKV("user-prefs", {})
@@ -933,10 +1017,10 @@ const [selectedTab, setSelectedTab] = useState("overview")`}
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Asset Management</h4>
+                  <h4 id="asset-management" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'asset-management')}>Asset Management</h4>
                   <p className="text-sm text-muted-foreground mb-2">Always import assets explicitly, never use string paths</p>
                   <CodeBlock
-                    id="asset-imports"
+                    id="asset-imports-code"
                     code={`// ✅ Correct - import explicitly
 import myImage from '@/assets/images/logo.png'
 import myVideo from '@/assets/video/hero.mp4'
@@ -956,15 +1040,15 @@ import myAudio from '@/assets/audio/click.mp3'
 
           <Card>
             <CardHeader>
-              <CardTitle>UI & Styling Guidelines</CardTitle>
+              <CardTitle id="ui-styling-guidelines">UI & Styling Guidelines</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Component Library</h4>
+                  <h4 id="component-library" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'component-library')}>Component Library</h4>
                   <p className="text-sm text-muted-foreground mb-2">Strongly prefer shadcn components over plain HTML</p>
                   <CodeBlock
-                    id="shadcn-components"
+                    id="shadcn-components-code"
                     code={`// ✅ Preferred
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -983,10 +1067,10 @@ import { Input } from "@/components/ui/input"
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Styling with Tailwind</h4>
+                  <h4 id="styling-with-tailwind" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'styling-with-tailwind')}>Styling with Tailwind</h4>
                   <p className="text-sm text-muted-foreground mb-2">Use utility classes and theme variables</p>
                   <CodeBlock
-                    id="tailwind-styling"
+                    id="tailwind-styling-code"
                     code={`// Use theme variables
 <div className="bg-background text-foreground">
 <Button className="bg-primary text-primary-foreground">
@@ -1002,10 +1086,10 @@ import { Input } from "@/components/ui/input"
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Icons</h4>
+                  <h4 id="icons" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'icons')}>Icons</h4>
                   <p className="text-sm text-muted-foreground mb-2">Use Phosphor Icons with default size and weight</p>
                   <CodeBlock
-                    id="icons"
+                    id="icons-code"
                     code={`import { Plus, Search, User, Settings } from "@phosphor-icons/react"
 
 // ✅ Use with default size/weight
@@ -1025,7 +1109,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Available Libraries</CardTitle>
+              <CardTitle id="available-libraries">Available Libraries</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1056,7 +1140,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2" id="full-system-prompt">
                 <Download size={20} />
                 Full System Prompt
               </CardTitle>
@@ -1090,7 +1174,7 @@ import { Input } from "@/components/ui/input"
               
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">System Prompt Content</h4>
+                  <h4 id="system-prompt-content" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-prompt-content')}>System Prompt Content</h4>
                   <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {systemPromptLoading ? 'Loading...' : systemPromptText}
@@ -1099,7 +1183,7 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-2">Available Tools</h4>
+                  <h4 id="available-tools" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'available-tools')}>Available Tools</h4>
                   <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {toolsLoading ? 'Loading...' : toolsText}
@@ -1119,7 +1203,7 @@ import { Input } from "@/components/ui/input"
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Platform Information</h2>
+            <SectionHeader id="platform-information">Platform Information</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Details about the Spark platform environment, system specifications, and runtime environment.
             </p>
@@ -1127,7 +1211,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>System Environment</CardTitle>
+              <CardTitle id="system-environment">System Environment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1166,7 +1250,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Memory & Storage</CardTitle>
+              <CardTitle id="memory-storage">Memory & Storage</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1205,7 +1289,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Spark Runtime Environment</CardTitle>
+              <CardTitle id="spark-runtime-environment">Spark Runtime Environment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1252,7 +1336,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Development Environment</CardTitle>
+              <CardTitle id="development-environment">Development Environment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1291,12 +1375,12 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Platform Capabilities & Limitations</CardTitle>
+              <CardTitle id="platform-capabilities-limitations">Platform Capabilities & Limitations</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">✅ Supported Features</h4>
+                  <h4 id="supported-features" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'supported-features')}>✅ Supported Features</h4>
                   <ul className="space-y-1 text-sm">
                     <li>• React applications with TypeScript</li>
                     <li>• Client-side state management with persistence</li>
@@ -1310,7 +1394,7 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-2">❌ Platform Limitations</h4>
+                  <h4 id="platform-limitations" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'platform-limitations')}>❌ Platform Limitations</h4>
                   <ul className="space-y-1 text-sm">
                     <li>• No server-side execution (Node.js APIs)</li>
                     <li>• No database connections</li>
@@ -1323,7 +1407,7 @@ import { Input } from "@/components/ui/input"
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-2">🎯 Optimization Focus</h4>
+                  <h4 id="optimization-focus" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimization-focus')}>🎯 Optimization Focus</h4>
                   <ul className="space-y-1 text-sm">
                     <li>• Fast hot module replacement (HMR)</li>
                     <li>• Minimal bundle sizes</li>
@@ -1339,7 +1423,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Performance Characteristics</CardTitle>
+              <CardTitle id="performance-characteristics">Performance Characteristics</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1378,7 +1462,7 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>Available System Tools</CardTitle>
+              <CardTitle id="available-system-tools">Available System Tools</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground mb-4">
@@ -1391,7 +1475,7 @@ import { Input } from "@/components/ui/input"
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-2">Key Development Tools</h4>
+                  <h4 id="key-development-tools" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'key-development-tools')}>Key Development Tools</h4>
                   <ul className="text-sm space-y-1">
                     <li>• <code>node</code> - Node.js runtime</li>
                     <li>• <code>git</code> - Version control</li>
@@ -1403,7 +1487,7 @@ import { Input } from "@/components/ui/input"
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-2">System Utilities</h4>
+                  <h4 id="system-utilities" className="font-semibold text-sm text-muted-foreground mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'system-utilities')}>System Utilities</h4>
                   <ul className="text-sm space-y-1">
                     <li>• <code>bash</code>, <code>zsh</code> - Shell environments</li>
                     <li>• <code>grep</code>, <code>sed</code>, <code>awk</code> - Text processing</li>
@@ -1426,7 +1510,7 @@ import { Input } from "@/components/ui/input"
       content: (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Best Practices</h2>
+            <SectionHeader id="best-practices">Best Practices</SectionHeader>
             <p className="text-muted-foreground mb-6">
               Essential patterns and recommendations for building high-quality Spark applications.
             </p>
@@ -1434,15 +1518,15 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle>State Management</CardTitle>
+              <CardTitle id="state-management">State Management</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Functional Updates with useKV</h4>
+                  <h4 id="functional-updates-usekv" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'functional-updates-usekv')}>Functional Updates with useKV</h4>
                   <p className="text-sm text-muted-foreground mb-2">Always use functional updates to avoid stale closure issues</p>
                   <CodeBlock
-                    id="functional-updates"
+                    id="functional-updates-code"
                     code={`// ❌ WRONG - Stale closure issue
 const [todos, setTodos] = useKV("todos", [])
 const addTodo = () => {
@@ -1466,9 +1550,9 @@ const toggleTodo = (id) => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Choosing Between useState and useKV</h4>
+                  <h4 id="choosing-usestate-usekv" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'choosing-usestate-usekv')}>Choosing Between useState and useKV</h4>
                   <CodeBlock
-                    id="state-choice"
+                    id="state-choice-code"
                     code={`// Persistent data - use useKV
 const [userPreferences, setUserPreferences] = useKV("prefs", { theme: "light" })
 const [savedDocuments, setSavedDocuments] = useKV("docs", [])
@@ -1487,11 +1571,11 @@ const [isLoading, setIsLoading] = useState(false)`}
 
           <Card>
             <CardHeader>
-              <CardTitle>Error Handling</CardTitle>
+              <CardTitle id="error-handling">Error Handling</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
-                id="error-handling"
+                id="llm-error-handling"
                 title="LLM API Error Handling"
                 code={`const generateContent = async (topic: string) => {
   try {
@@ -1510,7 +1594,7 @@ const [isLoading, setIsLoading] = useState(false)`}
               />
 
               <CodeBlock
-                id="kv-error-handling"
+                id="kv-error-handling-code"
                 title="KV Storage Error Handling"
                 code={`const saveData = async () => {
   try {
@@ -1527,14 +1611,14 @@ const [isLoading, setIsLoading] = useState(false)`}
 
           <Card>
             <CardHeader>
-              <CardTitle>Performance Tips</CardTitle>
+              <CardTitle id="performance-tips">Performance Tips</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Efficient Re-renders</h4>
+                  <h4 id="efficient-re-renders" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'efficient-re-renders')}>Efficient Re-renders</h4>
                   <CodeBlock
-                    id="performance-tips"
+                    id="performance-tips-code"
                     code={`// Use useMemo for expensive calculations
 const expensiveValue = useMemo(() => {
   return computeExpensiveValue(data)
@@ -1553,9 +1637,9 @@ const MemoizedComponent = memo(({ data }: { data: ComplexObject }) => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Optimizing KV Operations</h4>
+                  <h4 id="optimizing-kv-operations" className="font-semibold mb-2 scroll-mt-20 cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, 'optimizing-kv-operations')}>Optimizing KV Operations</h4>
                   <CodeBlock
-                    id="kv-optimization"
+                    id="kv-optimization-code"
                     code={`// Batch related operations
 const updateUserProfile = useCallback(async (updates) => {
   setProfile(current => ({ ...current, ...updates }))
@@ -1578,11 +1662,11 @@ const deleteOldData = async () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Accessibility</CardTitle>
+              <CardTitle id="accessibility">Accessibility</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
-                id="accessibility"
+                id="accessibility-code"
                 title="Accessible Components"
                 code={`// Use semantic HTML and ARIA labels
 <Button 
@@ -1620,11 +1704,11 @@ useEffect(() => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Mobile Responsiveness</CardTitle>
+              <CardTitle id="mobile-responsiveness">Mobile Responsiveness</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
-                id="mobile-responsive"
+                id="mobile-responsive-code"
                 title="Responsive Design Patterns"
                 code={`import { useIsMobile } from '@/hooks/use-mobile'
 
@@ -1684,10 +1768,7 @@ function ResponsiveComponent() {
             key={section.id}
             variant={activeSection === section.id ? "secondary" : "ghost"}
             className="w-full justify-start"
-            onClick={() => {
-              setActiveSection(section.id)
-              if (isMobile) setSidebarOpen(false)
-            }}
+            onClick={() => navigateToSection(section.id)}
           >
             {section.icon}
             <span className="ml-2">{section.title}</span>
