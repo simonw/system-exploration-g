@@ -78,7 +78,9 @@ function App() {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
         
-        const text = await response.text()
+        let text = await response.text()
+        // Replace HTML entities with actual characters
+        text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
         setToolsText(text)
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Failed to load tools documentation'
@@ -1090,7 +1092,7 @@ import { Input } from "@/components/ui/input"
               <div className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">System Prompt Content</h4>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
+                  <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {systemPromptLoading ? 'Loading...' : systemPromptText}
                     </pre>
@@ -1099,7 +1101,7 @@ import { Input } from "@/components/ui/input"
                 
                 <div>
                   <h4 className="font-semibold mb-2">Available Tools</h4>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
+                  <div className="bg-muted rounded-lg p-4 relative">
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {toolsLoading ? 'Loading...' : toolsText}
                     </pre>
