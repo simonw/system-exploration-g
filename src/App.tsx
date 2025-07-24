@@ -592,7 +592,7 @@ return (
                       
                       <div className="text-xs text-muted-foreground space-y-1">
                         <p><strong>Tip:</strong> Use variables in your prompt for dynamic content</p>
-                        <p><strong>Example:</strong> "Explain {`${topic}`} in simple terms"</p>
+                        <p><strong>Example:</strong> "Explain $&#123;topic&#125; in simple terms"</p>
                       </div>
                     </div>
                     
