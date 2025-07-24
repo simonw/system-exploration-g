@@ -39,6 +39,8 @@ function App() {
   const [llmJsonMode, setLlmJsonMode] = useState(false)
   const [llmResult, setLlmResult] = useState('')
   const [llmLoading, setLlmLoading] = useState(false)
+  const [userInfo, setUserInfo] = useState('')
+  const [userLoading, setUserLoading] = useState(false)
 
   // Load KV keys on mount
   useEffect(() => {
@@ -125,6 +127,25 @@ function App() {
       toast.error('Failed to generate response')
     } finally {
       setLlmLoading(false)
+    }
+  }
+
+  // User operations
+  const handleGetUser = async () => {
+    try {
+      setUserLoading(true)
+      setUserInfo('Loading user information...')
+      
+      const user = await spark.user()
+      const formattedUser = JSON.stringify(user, null, 2)
+      setUserInfo(`👤 User Information:\n${formattedUser}`)
+      toast.success('User information retrieved successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to get user information'
+      setUserInfo(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to get user information')
+    } finally {
+      setUserLoading(false)
     }
   }
 
@@ -404,31 +425,8 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
 // Returns: { avatarUrl, email, id, isOwner, login }`}
               />
               
-              <CodeBlock
-                id="user-conditional"
-                title="Conditional Features"
-                code={`const user = await spark.user()
-if (user.isOwner) {
-  // Show admin features
-  renderAdminPanel()
-} else {
-  // Show regular user features
-  renderUserPanel()
-}`}
-              />
-              
-              <CodeBlock
-                id="user-display"
-                title="Display User Info"
-                code={`const user = await spark.user()
-
-return (
-  <div className="flex items-center gap-2">
-    <img src={user.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full" />
-    <span>{user.login}</span>
-    {user.isOwner && <Badge>Owner</Badge>}
-  </div>
-)`}
+              <p className="text-sm text-muted-foreground">
+                Try the interactive playground above to see live user data, or use the examples below in your own code.
               />
             </CardContent>
           </Card>
@@ -449,9 +447,10 @@ return (
           </div>
 
           <Tabs defaultValue="kv" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="kv">KV Store</TabsTrigger>
               <TabsTrigger value="llm">LLM API</TabsTrigger>
+              <TabsTrigger value="user">User API</TabsTrigger>
             </TabsList>
             
             <TabsContent value="kv" className="space-y-6">
@@ -672,6 +671,110 @@ return (
                           User Profile JSON
                         </Button>
                       </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="user" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User size={20} />
+                    User API Playground
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Get information about the current GitHub user, including avatar, email, login, and owner status.
+                        </p>
+                        
+                        <Button 
+                          onClick={handleGetUser} 
+                          disabled={userLoading}
+                          className="w-full"
+                        >
+                          {userLoading ? 'Loading...' : 'Get User Information'}
+                        </Button>
+                      </div>
+                      
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p><strong>User Properties:</strong></p>
+                        <ul className="ml-4 space-y-1">
+                          <li>• <code>avatarUrl</code> - GitHub profile picture URL</li>
+                          <li>• <code>email</code> - User's email address</li>
+                          <li>• <code>id</code> - Unique user identifier</li>
+                          <li>• <code>login</code> - GitHub username</li>
+                          <li>• <code>isOwner</code> - Whether user owns this app</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label>User Information</Label>
+                      <div className="bg-muted rounded-lg p-4 min-h-[200px] mt-2 relative">
+                        <pre className="text-sm whitespace-pre-wrap">
+                          {userInfo || 'No user information retrieved yet'}
+                        </pre>
+                        {userInfo && !userLoading && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                            onClick={() => copyToClipboard(userInfo, 'user-info')}
+                          >
+                            {copiedCode === 'user-info' ? <Check size={16} /> : <Copy size={16} />}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Example Use Cases</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Conditional Features</h4>
+                      <CodeBlock
+                        id="user-conditional-example"
+                        code={`const user = await spark.user()
+if (user.isOwner) {
+  // Show admin panel
+  showAdminFeatures()
+} else {
+  // Show regular features
+  showUserFeatures()
+}`}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">User Display</h4>
+                      <CodeBlock
+                        id="user-display-example"
+                        code={`const user = await spark.user()
+
+return (
+  <div className="flex items-center gap-2">
+    <img 
+      src={user.avatarUrl} 
+      alt="Avatar" 
+      className="w-8 h-8 rounded-full" 
+    />
+    <span>{user.login}</span>
+    {user.isOwner && <Badge>Owner</Badge>}
+  </div>
+)`}
+                      />
                     </div>
                   </div>
                 </CardContent>
