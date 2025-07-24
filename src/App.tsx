@@ -43,9 +43,55 @@ function App() {
   const [userLoading, setUserLoading] = useState(false)
   const [systemPromptText, setSystemPromptText] = useState('')
   const [systemPromptLoading, setSystemPromptLoading] = useState(false)
+  const [toolsText, setToolsText] = useState('')
+  const [toolsLoading, setToolsLoading] = useState(false)
 
-  // Load KV keys on mount
+  // Load system prompt and tools on mount
   useEffect(() => {
+    const loadSystemPrompt = async () => {
+      try {
+        setSystemPromptLoading(true)
+        setSystemPromptText('Loading system prompt...')
+        
+        const response = await fetch('/src/system_prompt.md')
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        const text = await response.text()
+        setSystemPromptText(text)
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load system prompt'
+        setSystemPromptText(`❌ Error loading system prompt: ${errorMsg}`)
+      } finally {
+        setSystemPromptLoading(false)
+      }
+    }
+
+    const loadTools = async () => {
+      try {
+        setToolsLoading(true)
+        setToolsText('Loading tools documentation...')
+        
+        const response = await fetch('/src/tools.md')
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        const text = await response.text()
+        setToolsText(text)
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load tools documentation'
+        setToolsText(`❌ Error loading tools: ${errorMsg}`)
+      } finally {
+        setToolsLoading(false)
+      }
+    }
+
+    loadSystemPrompt()
+    loadTools()
+
+    // Load KV keys
     const loadKeys = async () => {
       try {
         const keys = await spark.kv.keys()
@@ -148,29 +194,6 @@ function App() {
       toast.error('Failed to get user information')
     } finally {
       setUserLoading(false)
-    }
-  }
-
-  // System prompt operations
-  const loadSystemPrompt = async () => {
-    try {
-      setSystemPromptLoading(true)
-      setSystemPromptText('Loading system prompt...')
-      
-      const response = await fetch('/src/system_prompt.md')
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      }
-      
-      const text = await response.text()
-      setSystemPromptText(text)
-      toast.success('System prompt loaded successfully!')
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to load system prompt'
-      setSystemPromptText(`❌ Error loading system prompt: ${errorMsg}`)
-      toast.error('Failed to load system prompt')
-    } finally {
-      setSystemPromptLoading(false)
     }
   }
 
@@ -1043,31 +1066,46 @@ import { Input } from "@/components/ui/input"
                 tools, and guidelines. This is the exact text that instructs the AI on how to build applications.
               </p>
               
-              <div className="flex gap-2">
-                <Button 
-                  onClick={loadSystemPrompt} 
-                  disabled={systemPromptLoading}
-                >
-                  {systemPromptLoading ? 'Loading...' : 'Load System Prompt'}
-                </Button>
-                {systemPromptText && !systemPromptLoading && (
+              {systemPromptText && !systemPromptLoading && (
+                <div className="flex gap-2 mb-4">
                   <Button
                     variant="outline"
                     onClick={() => copyToClipboard(systemPromptText, 'system-prompt')}
                   >
                     {copiedCode === 'system-prompt' ? <Check size={16} /> : <Copy size={16} />}
-                    Copy All
+                    Copy System Prompt
                   </Button>
-                )}
-              </div>
-              
-              {systemPromptText && (
-                <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
-                  <pre className="text-xs whitespace-pre-wrap font-mono">
-                    {systemPromptText}
-                  </pre>
+                  {toolsText && !toolsLoading && (
+                    <Button
+                      variant="outline"
+                      onClick={() => copyToClipboard(toolsText, 'tools-prompt')}
+                    >
+                      {copiedCode === 'tools-prompt' ? <Check size={16} /> : <Copy size={16} />}
+                      Copy Tools
+                    </Button>
+                  )}
                 </div>
               )}
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">System Prompt Content</h4>
+                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
+                    <pre className="text-xs whitespace-pre-wrap font-mono">
+                      {systemPromptLoading ? 'Loading...' : systemPromptText}
+                    </pre>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">Available Tools</h4>
+                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
+                    <pre className="text-xs whitespace-pre-wrap font-mono">
+                      {toolsLoading ? 'Loading...' : toolsText}
+                    </pre>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

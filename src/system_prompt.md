@@ -673,11 +673,3 @@ Fix all reported errors.
 Add the spark.user() feature to the playground
 Fix all reported errors.
 
-## Tools Available
-
-In this environment you have access to a set of tools you can use to answer the user's question.
-
-You can invoke functions by writing a "<function_calls>" block like the following as part of your reply to the user:
-<function_calls>
-<invoke name="$FUNCTION_NAME">
-<parameter name="$PARAMETER_NAME">$PARAMETER_VALUE
