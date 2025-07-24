@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play, Download } from '@phosphor-icons/react'
+import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 interface Section {
@@ -1118,6 +1118,272 @@ import { Input } from "@/components/ui/input"
                     <pre className="text-xs whitespace-pre-wrap font-mono">
                       {toolsLoading ? 'Loading...' : toolsText}
                     </pre>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    },
+    {
+      id: 'platform',
+      title: 'Platform',
+      icon: <Monitor size={20} />,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Platform Information</h2>
+            <p className="text-muted-foreground mb-6">
+              Details about the Spark platform environment, system specifications, and runtime environment.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>System Environment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Operating System</h4>
+                    <p className="font-mono text-sm">Debian GNU/Linux 12 (bookworm)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Kernel Version</h4>
+                    <p className="font-mono text-sm">6.8.0-1027-azure</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Architecture</h4>
+                    <p className="font-mono text-sm">x86_64 (64-bit)</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Processor</h4>
+                    <p className="font-mono text-sm">AMD EPYC 7763 64-Core</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">CPU Cores Available</h4>
+                    <p className="font-mono text-sm">4 cores</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Platform</h4>
+                    <p className="font-mono text-sm">Azure Cloud (GitHub Codespaces)</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Memory & Storage</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Total Memory</h4>
+                    <p className="font-mono text-sm">15 GB RAM</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Available Memory</h4>
+                    <p className="font-mono text-sm">~9.8 GB available</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Swap Space</h4>
+                    <p className="font-mono text-sm">None configured</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Disk Space Total</h4>
+                    <p className="font-mono text-sm">31 GB</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Disk Space Available</h4>
+                    <p className="font-mono text-sm">27 GB free</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Disk Usage</h4>
+                    <p className="font-mono text-sm">10% used (2.7 GB)</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Spark Runtime Environment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Framework</h4>
+                    <p>React with TypeScript</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Build Tool</h4>
+                    <p>Vite (optimized for fast development)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Component Library</h4>
+                    <p>shadcn/ui v4 (40+ preinstalled components)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Styling</h4>
+                    <p>Tailwind CSS with custom theme variables</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Icons</h4>
+                    <p>Phosphor Icons React</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Persistence</h4>
+                    <p>KV Store with React hooks</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">AI Integration</h4>
+                    <p>Direct LLM API access (GPT-4o, GPT-4o-mini)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">User Context</h4>
+                    <p>GitHub authentication & user info</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Development Environment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Container Platform</h4>
+                    <p>GitHub Codespaces</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Cloud Provider</h4>
+                    <p>Microsoft Azure</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">File System</h4>
+                    <p>Overlay FS (container optimized)</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Package Manager</h4>
+                    <p>npm (restricted to isomorphic packages)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Build Target</h4>
+                    <p>Browser-compatible applications only</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Security Model</h4>
+                    <p>Sandboxed execution environment</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Platform Capabilities & Limitations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">✅ Supported Features</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>• React applications with TypeScript</li>
+                    <li>• Client-side state management with persistence</li>
+                    <li>• Direct LLM API integration</li>
+                    <li>• GitHub user authentication context</li>
+                    <li>• Browser-compatible libraries (D3, Three.js, etc.)</li>
+                    <li>• Real-time UI updates and animations</li>
+                    <li>• Responsive design patterns</li>
+                    <li>• Asset management (images, videos, audio)</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">❌ Platform Limitations</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>• No server-side execution (Node.js APIs)</li>
+                    <li>• No database connections</li>
+                    <li>• No file system access beyond assets</li>
+                    <li>• No network server capabilities</li>
+                    <li>• No external API calls (except through LLM proxy)</li>
+                    <li>• No local storage persistence (use KV store instead)</li>
+                    <li>• No privileged system operations</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">🎯 Optimization Focus</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>• Fast hot module replacement (HMR)</li>
+                    <li>• Minimal bundle sizes</li>
+                    <li>• Tree-shaking for unused code</li>
+                    <li>• Optimized for micro-applications</li>
+                    <li>• Progressive enhancement patterns</li>
+                    <li>• Mobile-first responsive design</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Characteristics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Cold Start Time</h4>
+                    <p className="text-sm">~2-3 seconds (Vite dev server)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Hot Reload</h4>
+                    <p className="text-sm">&lt;100ms (React Fast Refresh)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Build Time</h4>
+                    <p className="text-sm">~5-15 seconds (typical app)</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Memory Usage</h4>
+                    <p className="text-sm">~100-500MB (per app instance)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Bundle Size</h4>
+                    <p className="text-sm">~200-800KB (gzipped, typical)</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm text-muted-foreground">KV Operations</h4>
+                    <p className="text-sm">&lt;10ms (local storage backed)</p>
                   </div>
                 </div>
               </div>
