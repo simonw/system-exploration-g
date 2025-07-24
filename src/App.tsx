@@ -81,6 +81,19 @@ function App() {
         let text = await response.text()
         // Replace HTML entities with actual characters
         text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        
+        // Pretty-print JSON within <function> tags
+        text = text.replace(/<function>({.*?})<\/function>/gs, (match, jsonContent) => {
+          try {
+            const parsed = JSON.parse(jsonContent)
+            const formatted = JSON.stringify(parsed, null, 2)
+            return `<function>\n${formatted}\n</function>`
+          } catch (e) {
+            // If JSON parsing fails, return original
+            return match
+          }
+        })
+        
         setToolsText(text)
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Failed to load tools documentation'
