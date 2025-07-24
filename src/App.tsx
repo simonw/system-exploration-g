@@ -999,7 +999,7 @@ return (
 │   │   └── use-mobile.ts
 │   ├── index.css       // Custom CSS and theme definitions
 │   ├── lib/
-│   │   └── utils.ts    // Utilities with shadcn class helper
+│   │   └─��� utils.ts    // Utilities with shadcn class helper
 │   ├── main.css        // Structural CSS (DO NOT EDIT)
 │   ├── main.tsx        // Structural TSX (DO NOT EDIT)
 │   └── styles/
@@ -1968,8 +1968,8 @@ function ResponsiveComponent() {
         <Menu />
       </Button>
     </SheetTrigger>
-    <SheetContent>
-      <Navigation />
+            <CardContent className="space-y-4">
+              <CodeBlock
     </SheetContent>
   </Sheet>
 ) : (
