@@ -79,9 +79,7 @@ function App() {
     const hash = window.location.hash.slice(1)
     if (hash) {
       const [sectionId, fragmentId] = hash.split('--')
-      // List of valid section IDs
-      const validSections = ['overview', 'persistence', 'llm', 'user', 'playground', 'system-prompt', 'platform', 'best-practices']
-      if (sectionId && validSections.includes(sectionId)) {
+      if (sectionId && sections.find(s => s.id === sectionId)) {
         setActiveSection(sectionId)
         if (fragmentId) {
           setTimeout(() => {
