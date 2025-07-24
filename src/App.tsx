@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play } from '@phosphor-icons/react'
+import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play, Download } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 interface Section {
@@ -41,6 +41,8 @@ function App() {
   const [llmLoading, setLlmLoading] = useState(false)
   const [userInfo, setUserInfo] = useState('')
   const [userLoading, setUserLoading] = useState(false)
+  const [systemPromptText, setSystemPromptText] = useState('')
+  const [systemPromptLoading, setSystemPromptLoading] = useState(false)
 
   // Load KV keys on mount
   useEffect(() => {
@@ -146,6 +148,29 @@ function App() {
       toast.error('Failed to get user information')
     } finally {
       setUserLoading(false)
+    }
+  }
+
+  // System prompt operations
+  const loadSystemPrompt = async () => {
+    try {
+      setSystemPromptLoading(true)
+      setSystemPromptText('Loading system prompt...')
+      
+      const response = await fetch('/src/system_prompt.md')
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      const text = await response.text()
+      setSystemPromptText(text)
+      toast.success('System prompt loaded successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load system prompt'
+      setSystemPromptText(`❌ Error loading system prompt: ${errorMsg}`)
+      toast.error('Failed to load system prompt')
+    } finally {
+      setSystemPromptLoading(false)
     }
   }
 
@@ -1002,6 +1027,47 @@ import { Input } from "@/components/ui/input"
                   </ul>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Download size={20} />
+                Full System Prompt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The complete system prompt that defines how Spark agents work, including all capabilities, 
+                tools, and guidelines. This is the exact text that instructs the AI on how to build applications.
+              </p>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={loadSystemPrompt} 
+                  disabled={systemPromptLoading}
+                >
+                  {systemPromptLoading ? 'Loading...' : 'Load System Prompt'}
+                </Button>
+                {systemPromptText && !systemPromptLoading && (
+                  <Button
+                    variant="outline"
+                    onClick={() => copyToClipboard(systemPromptText, 'system-prompt')}
+                  >
+                    {copiedCode === 'system-prompt' ? <Check size={16} /> : <Copy size={16} />}
+                    Copy All
+                  </Button>
+                )}
+              </div>
+              
+              {systemPromptText && (
+                <div className="bg-muted rounded-lg p-4 max-h-96 overflow-auto relative">
+                  <pre className="text-xs whitespace-pre-wrap font-mono">
+                    {systemPromptText}
+                  </pre>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
