@@ -20,10 +20,11 @@ jobs:
         node-version: '18'
     - name: Install dependencies
       run: npm install
-    - name: Copy main.tsx from main branch
+    - name: Copy main.tsx and App.tsx from main branch
       run: |
         git fetch origin main
         git show origin/main:src/main.tsx > src/main.tsx
+        git show origin/main:src/App.tsx > src/App.tsx
     - name: Remove Spark import from main.tsx
       run: |
         sed -i '/import "@github\/spark\/spark"/d' src/main.tsx
