@@ -1359,15 +1359,13 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <LinkableTitle id="system-environment" className="text-lg font-semibold mb-2">
-                <CardTitle>System Environment</CardTitle>
               </LinkableTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold text-sm text-muted-foreground">Operating System</h4>
                     <p className="font-mono text-sm">Debian GNU/Linux 12 (bookworm)</p>
                   </div>
                   <div>
@@ -1402,15 +1400,15 @@ import { Input } from "@/components/ui/input"
             <CardHeader>
               <LinkableTitle id="memory-storage" className="text-lg font-semibold mb-2">
                 <CardTitle>Memory & Storage</CardTitle>
+              <LinkableTitle id="memory-storage" className="text-lg font-semibold mb-2">
+                <CardTitle>Memory & Storage</CardTitle>
               </LinkableTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div>
+                <div className="space-y-3">
+                  <div>
                     <h4 className="font-semibold text-sm text-muted-foreground">Total Memory</h4>
-                    <p className="font-mono text-sm">15 GB RAM</p>
-                  </div>
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground">Available Memory</h4>
                     <p className="font-mono text-sm">~9.8 GB available</p>
@@ -1443,17 +1441,17 @@ import { Input } from "@/components/ui/input"
             <CardHeader>
               <LinkableTitle id="spark-runtime-environment" className="text-lg font-semibold mb-2">
                 <CardTitle>Spark Runtime Environment</CardTitle>
+              <LinkableTitle id="spark-runtime-environment" className="text-lg font-semibold mb-2">
+                <CardTitle>Spark Runtime Environment</CardTitle>
               </LinkableTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground">Framework</h4>
                     <p>React with TypeScript</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm text-muted-foreground">Build Tool</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground">Framework</h4>
+                    <p>React with TypeScript</p>
+                  </div>sm text-muted-foreground">Build Tool</h4>
                     <p>Vite (optimized for fast development)</p>
                   </div>
                   <div>
