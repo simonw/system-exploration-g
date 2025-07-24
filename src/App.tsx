@@ -319,6 +319,27 @@ function App() {
     )
   }
 
+  const LinkableTitle = ({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) => {
+    return (
+      <div 
+        id={id}
+        className={`scroll-mt-20 group flex items-center gap-2 ${className}`}
+      >
+        <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigateToSection(activeSection, id)}>
+          {children}
+        </span>
+        <button
+          onClick={() => navigateToSection(activeSection, id)}
+          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
+          aria-label={`Link to ${children}`}
+          title="Copy link to this section"
+        >
+          <Link size={18} className="text-muted-foreground hover:text-primary" />
+        </button>
+      </div>
+    )
+  }
+
   const sections: Section[] = [
     {
       id: 'overview',
@@ -387,9 +408,11 @@ function App() {
             <TabsContent value="useKV" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2" id="usekv-hook">
-                    useKV Hook <Badge variant="secondary">Recommended</Badge>
-                  </CardTitle>
+                  <LinkableTitle id="usekv-hook" className="text-lg font-semibold mb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      useKV Hook <Badge variant="secondary">Recommended</Badge>
+                    </CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>The useKV hook provides reactive state management with automatic persistence.</p>
@@ -436,7 +459,9 @@ setTodos((currentTodos) =>
             <TabsContent value="direct" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle id="direct-api">Direct API</CardTitle>
+                  <LinkableTitle id="direct-api" className="text-lg font-semibold mb-2">
+                    <CardTitle>Direct API</CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>Direct access to the key-value store for non-React contexts.</p>
@@ -478,7 +503,9 @@ await spark.kv.delete("user-preference")`}
 
           <Card>
             <CardHeader>
-              <CardTitle id="creating-prompts">Creating Prompts</CardTitle>
+              <LinkableTitle id="creating-prompts" className="text-lg font-semibold mb-2">
+                <CardTitle>Creating Prompts</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-red-600 font-medium">⚠️ ALL prompts MUST be created using spark.llmPrompt!</p>
@@ -498,7 +525,9 @@ const prompt = spark.llmPrompt\`Write a \${audience}-friendly explanation of \${
 
           <Card>
             <CardHeader>
-              <CardTitle id="executing-llm-calls">Executing LLM Calls</CardTitle>
+              <LinkableTitle id="executing-llm-calls" className="text-lg font-semibold mb-2">
+                <CardTitle>Executing LLM Calls</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -555,7 +584,9 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
 
           <Card>
             <CardHeader>
-              <CardTitle id="user-information">User Information</CardTitle>
+              <LinkableTitle id="user-information" className="text-lg font-semibold mb-2">
+                <CardTitle>User Information</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
@@ -596,10 +627,12 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="kv" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2" id="kv-store-playground">
-                    <Database size={20} />
-                    Key-Value Store Playground
-                  </CardTitle>
+                  <LinkableTitle id="kv-store-playground" className="text-lg font-semibold mb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <Database size={20} />
+                      Key-Value Store Playground
+                    </CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -675,10 +708,12 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="llm" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2" id="llm-api-playground">
-                    <Code size={20} />
-                    LLM API Playground
-                  </CardTitle>
+                  <LinkableTitle id="llm-api-playground" className="text-lg font-semibold mb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <Code size={20} />
+                      LLM API Playground
+                    </CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -759,7 +794,9 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
               
               <Card>
                 <CardHeader>
-                  <CardTitle id="example-prompts">Example Prompts</CardTitle>
+                  <LinkableTitle id="example-prompts" className="text-lg font-semibold mb-2">
+                    <CardTitle>Example Prompts</CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -820,10 +857,12 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
             <TabsContent value="user" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2" id="user-api-playground">
-                    <User size={20} />
-                    User API Playground
-                  </CardTitle>
+                  <LinkableTitle id="user-api-playground" className="text-lg font-semibold mb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <User size={20} />
+                      User API Playground
+                    </CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -878,7 +917,9 @@ const structuredData = await spark.llm(dataPrompt, "gpt-4o", true)`}
               
               <Card>
                 <CardHeader>
-                  <CardTitle id="user-example-use-cases">Example Use Cases</CardTitle>
+                  <LinkableTitle id="user-example-use-cases" className="text-lg font-semibold mb-2">
+                    <CardTitle>Example Use Cases</CardTitle>
+                  </LinkableTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -939,7 +980,9 @@ return (
 
           <Card>
             <CardHeader>
-              <CardTitle id="template-structure">Template Structure</CardTitle>
+              <LinkableTitle id="template-structure" className="text-lg font-semibold mb-2">
+                <CardTitle>Template Structure</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p>Every Spark app starts with this optimized template structure:</p>
@@ -970,7 +1013,9 @@ return (
 
           <Card>
             <CardHeader>
-              <CardTitle id="coding-standards">Coding Standards</CardTitle>
+              <LinkableTitle id="coding-standards" className="text-lg font-semibold mb-2">
+                <CardTitle>Coding Standards</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -1087,7 +1132,9 @@ import myAudio from '@/assets/audio/click.mp3'
 
           <Card>
             <CardHeader>
-              <CardTitle id="ui-styling-guidelines">UI & Styling Guidelines</CardTitle>
+              <LinkableTitle id="ui-styling-guidelines" className="text-lg font-semibold mb-2">
+                <CardTitle>UI & Styling Guidelines</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -1186,7 +1233,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="available-libraries">Available Libraries</CardTitle>
+              <LinkableTitle id="available-libraries" className="text-lg font-semibold mb-2">
+                <CardTitle>Available Libraries</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1217,10 +1266,12 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2" id="full-system-prompt">
-                <Download size={20} />
-                Full System Prompt
-              </CardTitle>
+              <LinkableTitle id="full-system-prompt" className="text-lg font-semibold mb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <Download size={20} />
+                  Full System Prompt
+                </CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
@@ -1308,7 +1359,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="system-environment">System Environment</CardTitle>
+              <LinkableTitle id="system-environment" className="text-lg font-semibold mb-2">
+                <CardTitle>System Environment</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1347,7 +1400,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="memory-storage">Memory & Storage</CardTitle>
+              <LinkableTitle id="memory-storage" className="text-lg font-semibold mb-2">
+                <CardTitle>Memory & Storage</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1386,7 +1441,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="spark-runtime-environment">Spark Runtime Environment</CardTitle>
+              <LinkableTitle id="spark-runtime-environment" className="text-lg font-semibold mb-2">
+                <CardTitle>Spark Runtime Environment</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1433,7 +1490,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="development-environment">Development Environment</CardTitle>
+              <LinkableTitle id="development-environment" className="text-lg font-semibold mb-2">
+                <CardTitle>Development Environment</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1472,7 +1531,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="platform-capabilities-limitations">Platform Capabilities & Limitations</CardTitle>
+              <LinkableTitle id="platform-capabilities-limitations" className="text-lg font-semibold mb-2">
+                <CardTitle>Platform Capabilities & Limitations</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -1550,7 +1611,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="performance-characteristics">Performance Characteristics</CardTitle>
+              <LinkableTitle id="performance-characteristics" className="text-lg font-semibold mb-2">
+                <CardTitle>Performance Characteristics</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1589,7 +1652,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="available-system-tools">Available System Tools</CardTitle>
+              <LinkableTitle id="available-system-tools" className="text-lg font-semibold mb-2">
+                <CardTitle>Available System Tools</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground mb-4">
@@ -1665,7 +1730,9 @@ import { Input } from "@/components/ui/input"
 
           <Card>
             <CardHeader>
-              <CardTitle id="state-management">State Management</CardTitle>
+              <LinkableTitle id="state-management" className="text-lg font-semibold mb-2">
+                <CardTitle>State Management</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -1738,7 +1805,9 @@ const [isLoading, setIsLoading] = useState(false)`}
 
           <Card>
             <CardHeader>
-              <CardTitle id="error-handling">Error Handling</CardTitle>
+              <LinkableTitle id="error-handling" className="text-lg font-semibold mb-2">
+                <CardTitle>Error Handling</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
@@ -1778,7 +1847,9 @@ const [isLoading, setIsLoading] = useState(false)`}
 
           <Card>
             <CardHeader>
-              <CardTitle id="performance-tips">Performance Tips</CardTitle>
+              <LinkableTitle id="performance-tips" className="text-lg font-semibold mb-2">
+                <CardTitle>Performance Tips</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -1849,7 +1920,9 @@ const deleteOldData = async () => {
 
           <Card>
             <CardHeader>
-              <CardTitle id="accessibility">Accessibility</CardTitle>
+              <LinkableTitle id="accessibility" className="text-lg font-semibold mb-2">
+                <CardTitle>Accessibility</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
@@ -1891,7 +1964,9 @@ useEffect(() => {
 
           <Card>
             <CardHeader>
-              <CardTitle id="mobile-responsiveness">Mobile Responsiveness</CardTitle>
+              <LinkableTitle id="mobile-responsiveness" className="text-lg font-semibold mb-2">
+                <CardTitle>Mobile Responsiveness</CardTitle>
+              </LinkableTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <CodeBlock
