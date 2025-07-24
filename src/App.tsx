@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { SYSTEM_PROMPT_CONTENT, TOOLS_CONTENT } from './prompts-content'
 
 interface Section {
   id: string
@@ -48,18 +49,10 @@ function App() {
 
   // Load system prompt and tools on mount
   useEffect(() => {
-    const loadSystemPrompt = async () => {
+    const loadSystemPrompt = () => {
       try {
         setSystemPromptLoading(true)
-        setSystemPromptText('Loading system prompt...')
-        
-        const response = await fetch('/src/system_prompt.md')
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-        }
-        
-        const text = await response.text()
-        setSystemPromptText(text)
+        setSystemPromptText(SYSTEM_PROMPT_CONTENT)
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Failed to load system prompt'
         setSystemPromptText(`❌ Error loading system prompt: ${errorMsg}`)
@@ -68,17 +61,11 @@ function App() {
       }
     }
 
-    const loadTools = async () => {
+    const loadTools = () => {
       try {
         setToolsLoading(true)
-        setToolsText('Loading tools documentation...')
         
-        const response = await fetch('/src/tools.md')
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-        }
-        
-        let text = await response.text()
+        let text = TOOLS_CONTENT
         // Replace HTML entities with actual characters
         text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
         
