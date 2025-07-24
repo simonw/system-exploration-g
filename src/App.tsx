@@ -369,9 +369,12 @@ function App() {
       content: (
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold mb-4">Spark API Documentation</h1>
-            <p className="text-lg text-muted-foreground mb-6">
+            <h1 className="text-3xl font-bold mb-4">Unofficial Documentation for Spark</h1>
+            <p className="text-lg text-muted-foreground mb-4">
               Comprehensive guide to building applications with the Spark platform
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              This is the unofficial documentation for <a href="https://github.com/features/spark" className="text-primary underline hover:no-underline">GitHub Spark</a>. See <a href="https://github.com/simonw/system-exploration-g/" className="text-primary underline hover:no-underline">this repo</a> for more about this project.
             </p>
           </div>
           
