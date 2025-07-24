@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor } from '@phosphor-icons/react'
+import { Copy, Check, Code, Database, User, Sparkle, List, Play, Download, Monitor } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { SYSTEM_PROMPT_CONTENT, TOOLS_CONTENT } from './prompts-content'
 
@@ -25,7 +25,6 @@ interface Section {
 
 function App() {
   const [activeSection, setActiveSection] = useState('overview')
-  const [searchQuery, setSearchQuery] = useState('')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isMobile = useIsMobile()
@@ -1630,31 +1629,16 @@ function ResponsiveComponent() {
     }
   ]
 
-  const filteredSections = sections.filter(section =>
-    searchQuery === '' ||
-    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.content.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
   const activeContent = sections.find(s => s.id === activeSection)?.content
 
   const SidebarContent = () => (
     <div className="w-64 bg-card border-r border-border p-4 min-h-screen">
       <div className="mb-6">
         <h2 className="text-xl font-bold mb-4">Spark Docs</h2>
-        <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-          <Input
-            placeholder="Search docs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
       </div>
       
       <nav className="space-y-2">
-        {filteredSections.map((section) => (
+        {sections.map((section) => (
           <Button
             key={section.id}
             variant={activeSection === section.id ? "secondary" : "ghost"}
