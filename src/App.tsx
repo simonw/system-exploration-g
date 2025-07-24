@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useKV } from '@github/spark/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -8,7 +9,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List } from '@phosphor-icons/react'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { MagnifyingGlass, Copy, Check, Code, Database, User, Sparkle, List, Play } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 interface Section {
@@ -24,6 +28,105 @@ function App() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isMobile = useIsMobile()
+
+  // Playground state
+  const [kvKey, setKvKey] = useState('test-key')
+  const [kvValue, setKvValue] = useState('{"example": "value"}')
+  const [kvResult, setKvResult] = useState('')
+  const [kvKeys, setKvKeys] = useState<string[]>([])
+  const [llmPrompt, setLlmPrompt] = useState('Write a haiku about programming')
+  const [llmModel, setLlmModel] = useState('gpt-4o')
+  const [llmJsonMode, setLlmJsonMode] = useState(false)
+  const [llmResult, setLlmResult] = useState('')
+  const [llmLoading, setLlmLoading] = useState(false)
+
+  // Load KV keys on mount
+  useEffect(() => {
+    const loadKeys = async () => {
+      try {
+        const keys = await spark.kv.keys()
+        setKvKeys(keys)
+      } catch (error) {
+        console.error('Failed to load keys:', error)
+      }
+    }
+    loadKeys()
+  }, [])
+
+  // KV operations
+  const handleKvSet = async () => {
+    try {
+      const parsedValue = JSON.parse(kvValue)
+      await spark.kv.set(kvKey, parsedValue)
+      setKvResult(`✅ Set "${kvKey}" successfully`)
+      const keys = await spark.kv.keys()
+      setKvKeys(keys)
+      toast.success('Value set successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to set value'
+      setKvResult(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to set value')
+    }
+  }
+
+  const handleKvGet = async () => {
+    try {
+      const value = await spark.kv.get(kvKey)
+      setKvResult(`📦 Retrieved: ${JSON.stringify(value, null, 2)}`)
+      toast.success('Value retrieved successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to get value'
+      setKvResult(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to get value')
+    }
+  }
+
+  const handleKvDelete = async () => {
+    try {
+      await spark.kv.delete(kvKey)
+      setKvResult(`🗑️ Deleted "${kvKey}" successfully`)
+      const keys = await spark.kv.keys()
+      setKvKeys(keys)
+      toast.success('Value deleted successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete value'
+      setKvResult(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to delete value')
+    }
+  }
+
+  const handleKvListKeys = async () => {
+    try {
+      const keys = await spark.kv.keys()
+      setKvKeys(keys)
+      setKvResult(`🔑 Keys: ${keys.length > 0 ? keys.join(', ') : 'No keys found'}`)
+      toast.success('Keys loaded successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to list keys'
+      setKvResult(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to list keys')
+    }
+  }
+
+  // LLM operations
+  const handleLlmPrompt = async () => {
+    try {
+      setLlmLoading(true)
+      setLlmResult('Generating response...')
+      
+      const prompt = spark.llmPrompt`${llmPrompt}`
+      const result = await spark.llm(prompt, llmModel, llmJsonMode)
+      
+      setLlmResult(result)
+      toast.success('Response generated successfully!')
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to generate response'
+      setLlmResult(`❌ Error: ${errorMsg}`)
+      toast.error('Failed to generate response')
+    } finally {
+      setLlmLoading(false)
+    }
+  }
 
   const copyToClipboard = async (code: string, id: string) => {
     try {
@@ -329,6 +432,252 @@ return (
               />
             </CardContent>
           </Card>
+        </div>
+      )
+    },
+    {
+      id: 'playground',
+      title: 'Playground',
+      icon: <Play size={20} />,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Interactive Playground</h2>
+            <p className="text-muted-foreground mb-6">
+              Experiment with the Spark APIs directly in your browser. Test KV storage operations and LLM prompting.
+            </p>
+          </div>
+
+          <Tabs defaultValue="kv" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="kv">KV Store</TabsTrigger>
+              <TabsTrigger value="llm">LLM API</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="kv" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database size={20} />
+                    Key-Value Store Playground
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="kv-key">Key</Label>
+                        <Input
+                          id="kv-key"
+                          value={kvKey}
+                          onChange={(e) => setKvKey(e.target.value)}
+                          placeholder="Enter key name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="kv-value">Value (JSON)</Label>
+                        <Textarea
+                          id="kv-value"
+                          value={kvValue}
+                          onChange={(e) => setKvValue(e.target.value)}
+                          placeholder='{"example": "value"}'
+                          rows={4}
+                        />
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Button onClick={handleKvSet} variant="default">
+                          Set Value
+                        </Button>
+                        <Button onClick={handleKvGet} variant="outline">
+                          Get Value
+                        </Button>
+                        <Button onClick={handleKvDelete} variant="destructive">
+                          Delete Key
+                        </Button>
+                        <Button onClick={handleKvListKeys} variant="secondary">
+                          List Keys
+                        </Button>
+                      </div>
+                      
+                      {kvKeys.length > 0 && (
+                        <div>
+                          <Label>Existing Keys (click to select)</Label>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {kvKeys.map((key) => (
+                              <Badge
+                                key={key}
+                                variant={key === kvKey ? "default" : "secondary"}
+                                className="cursor-pointer"
+                                onClick={() => setKvKey(key)}
+                              >
+                                {key}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <Label>Result</Label>
+                      <div className="bg-muted rounded-lg p-4 min-h-[200px] mt-2">
+                        <pre className="text-sm whitespace-pre-wrap">
+                          {kvResult || 'No operations performed yet'}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="llm" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code size={20} />
+                    LLM API Playground
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="llm-prompt">Prompt</Label>
+                        <Textarea
+                          id="llm-prompt"
+                          value={llmPrompt}
+                          onChange={(e) => setLlmPrompt(e.target.value)}
+                          placeholder="Enter your prompt here..."
+                          rows={6}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="llm-model">Model</Label>
+                          <Select value={llmModel} onValueChange={setLlmModel}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="gpt-4o">gpt-4o</SelectItem>
+                              <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex items-end">
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={llmJsonMode}
+                              onChange={(e) => setLlmJsonMode(e.target.checked)}
+                              className="rounded"
+                            />
+                            <span className="text-sm">JSON Mode</span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={handleLlmPrompt} 
+                        disabled={llmLoading || !llmPrompt.trim()}
+                        className="w-full"
+                      >
+                        {llmLoading ? 'Generating...' : 'Generate Response'}
+                      </Button>
+                      
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p><strong>Tip:</strong> Use variables in your prompt for dynamic content</p>
+                        <p><strong>Example:</strong> "Explain {`${topic}`} in simple terms"</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label>Response</Label>
+                      <div className="bg-muted rounded-lg p-4 min-h-[300px] mt-2 relative">
+                        <pre className="text-sm whitespace-pre-wrap">
+                          {llmResult || 'No prompts executed yet'}
+                        </pre>
+                        {llmResult && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                            onClick={() => copyToClipboard(llmResult, 'llm-response')}
+                          >
+                            {copiedCode === 'llm-response' ? <Check size={16} /> : <Copy size={16} />}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Example Prompts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Text Generation</h4>
+                      <div className="space-y-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left h-auto p-2"
+                          onClick={() => setLlmPrompt('Write a creative story about a time-traveling developer who accidentally breaks the internet')}
+                        >
+                          Creative Story
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left h-auto p-2"
+                          onClick={() => setLlmPrompt('Explain quantum computing in simple terms that a 10-year-old could understand')}
+                        >
+                          Simple Explanation
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Structured Data (JSON Mode)</h4>
+                      <div className="space-y-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left h-auto p-2"
+                          onClick={() => {
+                            setLlmPrompt('Generate a todo list for learning React with 5 tasks. Return as JSON with id, title, description, and difficulty fields.')
+                            setLlmJsonMode(true)
+                          }}
+                        >
+                          Todo List JSON
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left h-auto p-2"
+                          onClick={() => {
+                            setLlmPrompt('Create a user profile object with name, email, skills array, and preferences object. Return as valid JSON.')
+                            setLlmJsonMode(true)
+                          }}
+                        >
+                          User Profile JSON
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       )
     },
